@@ -1,13 +1,30 @@
-name: 'Wait'
+name: 'Run cronicle job'
 description: 'Wait a designated number of milliseconds'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  cronicle_host:
+    description: 'Cronicle host base url'
     required: true
-    default: '1000'
+  job_id:
+    description: 'Cronicle job id'
+    required: true
+  api_key:
+    description: 'Cronicle api key'
+    required: false
+  result_fetch_interval:
+    description: 'amount of seconds to wait between each fetch to check if the job has finished'
+    required: false
+    default: 10
+  max_fetch_retries:
+    description: 'amount of times the action checks if the job has finished before giving up'
+    required: false
+    default: 100
+  fail_on_regex_match:
+    description: 'scans the job output for given regex and sets the result as failed for a match'
+    required: false
+    default: null
 outputs:
-  time: # output will be available to future steps
-    description: 'The message to output'
+  log:
+    description: 'output log'
 runs:
-  using: 'node12'
+  using: 'node14'
   main: 'dist/index.js'
