@@ -10,7 +10,7 @@ let jobSuccess = false;
 async function run() {
   try {
     // don't log - could be sensitive
-    const cronicleHost = core.getInput('cronicle_host');
+    const cronicleHost = core.getInput('cronicle_host').replace(/\/$/, '');
     const eventId = core.getInput('event_id');
     const apiKey = core.getInput('api_key');
 
