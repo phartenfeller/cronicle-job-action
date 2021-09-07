@@ -9,7 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: phartenfeller/cronicle-job-action@latest
+      - uses: phartenfeller/cronicle-job-action@v0.1.2
         with:
           cronicle_host: ${{ secrets.CRONICLE_URL }}
           event_id: ${{ secrets.API_KEY }}
