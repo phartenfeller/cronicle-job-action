@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const core = require('@actions/core');
+const blankLog = require('./blankLog');
 
 class HTTPResponseError extends Error {
   constructor(response, ...args) {
@@ -100,8 +101,9 @@ async function getJobLog(hostname, taskId) {
     throw new Error(errorBody);
   }
   const data = await response.text();
+  const blanked = blankLog(data);
 
-  return data;
+  return blanked;
 }
 
 module.exports = { startEvent, checkJobStatus, getJobLog };
