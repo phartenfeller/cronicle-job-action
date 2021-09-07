@@ -23,5 +23,5 @@ jobs:
       - uses: ./
         with:
           cronicle_host: ${{ secrets.CRONICLE_URL }}
-          event_id: ${{ secrets.API_KEY }}
-          api_key: ${{ secrets.EVENT_ID }}
+          event_id: ${{ secrets.EVENT_ID }}
+          api_key: ${{ secrets.API_KEY }}
