@@ -10,7 +10,7 @@ You can now consume the action by referencing the v1 branch
 uses: phartenfeller/cronicle-job-action@latest
 with:
   cronicle_host: https://my-cronicle-host.com
-  job_id: ${{ secrets.job_key }}
+  event_id: ${{ secrets.event_id }}
   api_key: ${{ secrets.api_key }}
 ```
 

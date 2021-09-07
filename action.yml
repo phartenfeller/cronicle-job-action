@@ -4,8 +4,8 @@ inputs:
   cronicle_host:
     description: 'Cronicle host base url'
     required: true
-  job_id:
-    description: 'Cronicle job id'
+  event_id:
+    description: 'Cronicle event / job id'
     required: true
   api_key:
     description: 'Cronicle api key'

@@ -19,9 +19,9 @@ const checkStatus = (response) => {
   throw new HTTPResponseError(response);
 };
 
-async function startJob(hostname, jobId, apiKey) {
+async function startEvent(hostname, eventId, apiKey) {
   const payload = {
-    id: jobId,
+    id: eventId,
     api_key: apiKey,
   };
 
@@ -104,4 +104,4 @@ async function getJobLog(hostname, taskId) {
   return data;
 }
 
-module.exports = { startJob, checkJobStatus, getJobLog };
+module.exports = { startEvent, checkJobStatus, getJobLog };

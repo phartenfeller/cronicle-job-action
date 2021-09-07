@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const { startJob, checkJobStatus, getJobLog } = require('./src/cronicleApi');
+const { startEvent, checkJobStatus, getJobLog } = require('./src/cronicleApi');
 const pause = require('./src/pause');
 
 let jobDone = false;
@@ -11,7 +11,7 @@ async function run() {
   try {
     // don't log - could be sensitive
     const cronicleHost = core.getInput('cronicle_host');
-    const jobId = core.getInput('job_id');
+    const eventId = core.getInput('event_id');
     const apiKey = core.getInput('api_key');
 
     const fetchInterval =
@@ -26,7 +26,7 @@ async function run() {
       core.info(`Will fail if regex "${fetchInterval}" found in output log`);
     }
 
-    const taskId = await startJob(cronicleHost, jobId, apiKey);
+    const taskId = await startEvent(cronicleHost, eventId, apiKey);
     core.info(`Job started`);
     core.debug(`Task ID returned from API "${taskId}"`);
 
