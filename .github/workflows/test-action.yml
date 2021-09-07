@@ -1,0 +1,16 @@
+name: 'test action'
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: phartenfeller/cronicle-job-action@latest
+        with:
+          cronicle_host: ${{ secrets.CRONICLE_URL }}
+          event_id: ${{ secrets.API_KEY }}
+          api_key: ${{ secrets.EVENT_ID }}
