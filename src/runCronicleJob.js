@@ -36,14 +36,15 @@ async function runCronicleJob({
   core.info(`Job finished execution`);
 
   const log = await getJobLog(cronicleHost, taskId);
+
   core.setOutput('log', log);
 
   if (!failRegex) {
     core.info(`Job success => ${jobSuccess}`);
     core.setFailed(!jobSuccess);
   } else {
-    const success = log.match(new RegExp(failRegex)) === null;
-    core.setFailed(success);
+    const success = log.match(new RegExp(failRegex, 'gm')) === null;
+    core.setFailed(!success);
   }
 }
 
