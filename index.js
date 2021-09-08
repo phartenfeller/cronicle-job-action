@@ -8,6 +8,7 @@ async function run() {
     const cronicleHost = core.getInput('cronicle_host').replace(/\/$/, '');
     const eventId = core.getInput('event_id');
     const apiKey = core.getInput('api_key');
+    const outputLog = core.getBooleanInput('output_log');
 
     const fetchInterval =
       parseInt(core.getInput('result_fetch_interval')) || 10;
@@ -28,6 +29,7 @@ async function run() {
       fetchInterval,
       maxFetchRetries,
       failRegex,
+      outputLog,
     });
   } catch (error) {
     core.setFailed(error.message);

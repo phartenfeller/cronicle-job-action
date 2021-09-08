@@ -22,6 +22,10 @@ inputs:
     description: 'scans the job output for given regex and sets the result as failed for a match'
     required: false
     default: null
+  output_log:
+    description: 'spools the cronicle log in the GitHub actions log'
+    required: false
+    default: true
 outputs:
   log:
     description: 'output log'

@@ -13,6 +13,7 @@ async function runCronicleJob({
   fetchInterval,
   maxFetchRetries,
   failRegex,
+  outputLog = true,
 }) {
   const taskId = await startEvent(cronicleHost, eventId, apiKey);
   core.info(`Job started`);
@@ -38,6 +39,13 @@ async function runCronicleJob({
   const log = await getJobLog(cronicleHost, taskId);
 
   core.setOutput('log', log);
+
+  if (outputLog) {
+    const rows = log.split('\n');
+    for (let i = 0; i < rows.length; i += 1) {
+      core.info(rows[i]);
+    }
+  }
 
   if (!failRegex) {
     core.info(`Job success => ${jobSuccess}`);

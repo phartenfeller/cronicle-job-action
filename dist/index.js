@@ -2332,6 +2332,7 @@ async function runCronicleJob({
   fetchInterval,
   maxFetchRetries,
   failRegex,
+  outputLog = true,
 }) {
   const taskId = await startEvent(cronicleHost, eventId, apiKey);
   core.info(`Job started`);
@@ -2355,14 +2356,22 @@ async function runCronicleJob({
   core.info(`Job finished execution`);
 
   const log = await getJobLog(cronicleHost, taskId);
+
   core.setOutput('log', log);
+
+  if (outputLog) {
+    const rows = log.split('\n');
+    for (let i = 0; i < rows.length; i += 1) {
+      core.info(rows[i]);
+    }
+  }
 
   if (!failRegex) {
     core.info(`Job success => ${jobSuccess}`);
     core.setFailed(!jobSuccess);
   } else {
-    const success = log.match(new RegExp(failRegex)) === null;
-    core.setFailed(success);
+    const success = log.match(new RegExp(failRegex, 'gm')) === null;
+    core.setFailed(!success);
   }
 }
 
@@ -2494,6 +2503,7 @@ async function run() {
     const cronicleHost = core.getInput('cronicle_host').replace(/\/$/, '');
     const eventId = core.getInput('event_id');
     const apiKey = core.getInput('api_key');
+    const outputLog = core.getBooleanInput('output_log');
 
     const fetchInterval =
       parseInt(core.getInput('result_fetch_interval')) || 10;
@@ -2514,6 +2524,7 @@ async function run() {
       fetchInterval,
       maxFetchRetries,
       failRegex,
+      outputLog,
     });
   } catch (error) {
     core.setFailed(error.message);
