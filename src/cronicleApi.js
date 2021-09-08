@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const core = require('@actions/core');
 const blankLog = require('./blankLog');
+const isObject = require('./isObject');
 
 class HTTPResponseError extends Error {
   constructor(response, ...args) {
@@ -31,6 +32,10 @@ async function startEvent({
     api_key: apiKey,
     params: parameters,
   };
+
+  if (isObject(parameters)) {
+    payload.params = parameters;
+  }
 
   const options = {
     method: 'POST',

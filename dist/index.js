@@ -2188,6 +2188,7 @@ module.exports = blankLog;
 const fetch = __nccwpck_require__(467);
 const core = __nccwpck_require__(186);
 const blankLog = __nccwpck_require__(864);
+const isObject = __nccwpck_require__(527);
 
 class HTTPResponseError extends Error {
   constructor(response, ...args) {
@@ -2218,6 +2219,10 @@ async function startEvent({
     api_key: apiKey,
     params: parameters,
   };
+
+  if (isObject(parameters)) {
+    payload.params = parameters;
+  }
 
   const options = {
     method: 'POST',
@@ -2300,6 +2305,18 @@ async function getJobLog(hostname, taskId) {
 }
 
 module.exports = { startEvent, checkJobStatus, getJobLog };
+
+
+/***/ }),
+
+/***/ 527:
+/***/ ((module) => {
+
+function isObject(item) {
+  return typeof item === 'object' && !Array.isArray(item) && item !== null;
+}
+
+module.exports = isObject;
 
 
 /***/ }),
