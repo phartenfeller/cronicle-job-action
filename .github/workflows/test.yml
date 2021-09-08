@@ -12,7 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: yarn
+      - uses: actions/cache@master
+        id: cacheNodeModules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+      - name: yarn install
+        if: steps.cacheNodeModules.outputs.cache-hit != 'true'
+        run: yarn install
       - run: yarn test
 
   # test action works running from the graph

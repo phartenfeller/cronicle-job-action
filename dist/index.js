@@ -2368,7 +2368,6 @@ async function runCronicleJob({
   }
 
   if (!failRegex) {
-    core.info(`Job success => ${jobSuccess}`);
     if (!jobSuccess) {
       core.setFailed(`Cronicle job finished with error`);
     }
