@@ -41,6 +41,7 @@ async function runCronicleJob({
   core.setOutput('log', log);
 
   if (outputLog) {
+    core.info('======== Job Output ========');
     const rows = log.split('\n');
     for (let i = 0; i < rows.length; i += 1) {
       core.info(rows[i]);
@@ -49,10 +50,14 @@ async function runCronicleJob({
 
   if (!failRegex) {
     core.info(`Job success => ${jobSuccess}`);
-    core.setFailed(!jobSuccess);
+    if (!jobSuccess) {
+      core.setFailed(`Cronicle job finished with error`);
+    }
   } else {
     const success = log.match(new RegExp(failRegex, 'gm')) === null;
-    core.setFailed(!success);
+    if (!success) {
+      core.setFailed(`Regex "${failRegex}" did match.`);
+    }
   }
 }
 
