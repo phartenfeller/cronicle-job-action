@@ -22,6 +22,15 @@ async function run() {
       core.info(`Will fail if regex "${fetchInterval}" found in output log`);
     }
 
+    let parameters = core.getInput('parameter_object');
+    if (parameters) {
+      try {
+        parameters = JSON.parse(parameters);
+      } catch (err) {
+        core.setFailed(`Error parsing parameters: ${err.message}`);
+      }
+    }
+
     await runCronicleJob({
       cronicleHost,
       eventId,
@@ -30,6 +39,7 @@ async function run() {
       maxFetchRetries,
       failRegex,
       outputLog,
+      parameters,
     });
   } catch (error) {
     core.setFailed(error.message);

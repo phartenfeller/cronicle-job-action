@@ -14,8 +14,14 @@ async function runCronicleJob({
   maxFetchRetries,
   failRegex,
   outputLog = true,
+  parameters,
 }) {
-  const taskId = await startEvent(cronicleHost, eventId, apiKey);
+  const taskId = await startEvent({
+    cronicleHost,
+    eventId,
+    apiKey,
+    parameters,
+  });
   core.info(`Job started`);
   core.debug(`Task ID returned from API "${taskId}"`);
 

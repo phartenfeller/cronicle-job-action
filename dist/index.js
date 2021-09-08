@@ -2207,10 +2207,16 @@ const checkStatus = (response) => {
   throw new HTTPResponseError(response);
 };
 
-async function startEvent(hostname, eventId, apiKey) {
+async function startEvent({
+  cronicleHost,
+  eventId,
+  apiKey = null,
+  parameters = null,
+}) {
   const payload = {
     id: eventId,
     api_key: apiKey,
+    params: parameters,
   };
 
   const options = {
@@ -2219,7 +2225,7 @@ async function startEvent(hostname, eventId, apiKey) {
     headers: { 'Content-Type': 'application/json' },
   };
 
-  const response = await fetch(`${hostname}/api/app/run_event/v1`, options);
+  const response = await fetch(`${cronicleHost}/api/app/run_event/v1`, options);
   try {
     checkStatus(response);
   } catch (error) {
@@ -2333,8 +2339,14 @@ async function runCronicleJob({
   maxFetchRetries,
   failRegex,
   outputLog = true,
+  parameters,
 }) {
-  const taskId = await startEvent(cronicleHost, eventId, apiKey);
+  const taskId = await startEvent({
+    cronicleHost,
+    eventId,
+    apiKey,
+    parameters,
+  });
   core.info(`Job started`);
   core.debug(`Task ID returned from API "${taskId}"`);
 
@@ -2521,6 +2533,15 @@ async function run() {
       core.info(`Will fail if regex "${fetchInterval}" found in output log`);
     }
 
+    let parameters = core.getInput('parameter_object');
+    if (parameters) {
+      try {
+        parameters = JSON.parse(parameters);
+      } catch (err) {
+        core.setFailed(`Error parsing parameters: ${err.message}`);
+      }
+    }
+
     await runCronicleJob({
       cronicleHost,
       eventId,
@@ -2529,6 +2550,7 @@ async function run() {
       maxFetchRetries,
       failRegex,
       outputLog,
+      parameters,
     });
   } catch (error) {
     core.setFailed(error.message);

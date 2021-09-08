@@ -30,6 +30,9 @@ inputs:
     description: 'spools the cronicle log in the GitHub actions log'
     required: false
     default: true
+  parameter_object:
+    description: 'json object of parameters you can send to cronicle'
+    required: false
 outputs:
   log:
     description: 'output log'

@@ -20,10 +20,16 @@ const checkStatus = (response) => {
   throw new HTTPResponseError(response);
 };
 
-async function startEvent(hostname, eventId, apiKey) {
+async function startEvent({
+  cronicleHost,
+  eventId,
+  apiKey = null,
+  parameters = null,
+}) {
   const payload = {
     id: eventId,
     api_key: apiKey,
+    params: parameters,
   };
 
   const options = {
@@ -32,7 +38,7 @@ async function startEvent(hostname, eventId, apiKey) {
     headers: { 'Content-Type': 'application/json' },
   };
 
-  const response = await fetch(`${hostname}/api/app/run_event/v1`, options);
+  const response = await fetch(`${cronicleHost}/api/app/run_event/v1`, options);
   try {
     checkStatus(response);
   } catch (error) {
