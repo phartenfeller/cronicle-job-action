@@ -1,5 +1,9 @@
 name: 'Run cronicle job'
 description: 'Wait a designated number of milliseconds'
+author: 'Philipp Hartenfeller'
+branding:
+  icon: 'check-square'
+  color: 'green'
 inputs:
   cronicle_host:
     description: 'Cronicle host base url'
