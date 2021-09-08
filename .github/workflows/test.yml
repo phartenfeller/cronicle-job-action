@@ -33,7 +33,18 @@ jobs:
           event_id: ${{ secrets.EVENT_ID }}
           api_key: ${{ secrets.API_KEY }}
 
-  test2-regex-and-params:
+  test2-basic-no-logs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          cronicle_host: ${{ secrets.CRONICLE_URL }}
+          event_id: ${{ secrets.EVENT_ID }}
+          api_key: ${{ secrets.API_KEY }}
+          output_log: false
+
+  test3-regex-and-params:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -43,4 +54,4 @@ jobs:
           event_id: ${{ secrets.EVENT_ID_PARAMETERS }}
           api_key: ${{ secrets.API_KEY }}
           fail_on_regex_match: First:\s*$
-          parameter_object: '{"param1": "one", "param2": "two"}'
+          parameter_object: '{"param1": "one", "param2": "${{ github.ref }}"}'
