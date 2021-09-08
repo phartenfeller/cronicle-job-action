@@ -30,7 +30,6 @@ async function startEvent({
   const payload = {
     id: eventId,
     api_key: apiKey,
-    params: parameters,
   };
 
   if (isObject(parameters)) {
