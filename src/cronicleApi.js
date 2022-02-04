@@ -2,6 +2,13 @@ const fetch = require('node-fetch');
 const core = require('@actions/core');
 const blankLog = require('./blankLog');
 const isObject = require('./isObject');
+const packageJson = require('../package.json');
+
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  'User-Agent': `cronicle-job-action@${packageJson.version}`,
+};
 
 class HTTPResponseError extends Error {
   constructor(response, ...args) {
@@ -39,7 +46,7 @@ async function startEvent({
   const options = {
     method: 'POST',
     body: JSON.stringify(payload),
-    headers: { 'Content-Type': 'application/json' },
+    headers: defaultHeaders,
   };
 
   const response = await fetch(`${cronicleHost}/api/app/run_event/v1`, options);
@@ -70,7 +77,7 @@ async function checkJobStatus(hostname, taskId, apiKey) {
   const options = {
     method: 'POST',
     body: JSON.stringify(payload),
-    headers: { 'Content-Type': 'application/json' },
+    headers: defaultHeaders,
   };
 
   const response = await fetch(
