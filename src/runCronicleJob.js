@@ -2,20 +2,20 @@ const core = require('@actions/core');
 const { startEvent, checkJobStatus, getJobLog } = require('./cronicleApi');
 const pause = require('./pause');
 
-let jobDone = false;
-let retryCount = 0;
-let jobSuccess = false;
-
 async function runCronicleJob({
   cronicleHost,
   eventId,
   apiKey,
-  fetchInterval,
-  maxFetchRetries,
+  fetchInterval = 10,
+  maxFetchRetries = 100,
   failRegex,
   outputLog = true,
   parameters,
 }) {
+  let jobDone = false;
+  let retryCount = 0;
+  let jobSuccess = false;
+
   const taskId = await startEvent({
     cronicleHost,
     eventId,

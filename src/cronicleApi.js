@@ -98,12 +98,18 @@ async function checkJobStatus(hostname, taskId, apiKey) {
     throw new Error(`Error from API: ${data.description}`);
   }
 
-  return { finished: data.job.complete === 1, success: data.job.code === 0 };
+  const finished = 'time_end' in data.job;
+
+  return { finished, success: data.job.code === 0 };
 }
 
 async function getJobLog(hostname, taskId) {
   const options = {
     method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': `cronicle-job-action@${packageJson.version}`,
+    },
   };
 
   const response = await fetch(
