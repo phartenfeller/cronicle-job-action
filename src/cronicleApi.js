@@ -60,8 +60,8 @@ async function startEvent({
   const data = await response.json();
 
   if (data.code !== 0) {
-    core.error(`Error from API: ${data.description}`);
-    throw new Error(`Error from API: ${data.description}`);
+    core.error(`No success code from start job call: ${data.description}`);
+    throw new Error(`No success code from start job call: ${data.description}`);
   }
 
   // for now only handle first id
@@ -95,23 +95,33 @@ async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
     if (errorRetryCount < 5) {
       newErrorRetryCount += 1;
       core.info(
-        `API returned error: ${errorText}. Retrying #${newErrorRetryCount} ...`
+        `Checking job status resulted in error: ${errorText}. Retrying #${newErrorRetryCount} ...`
       );
-    } else {
-      core.error(`Could not check job status: ${errorText}`);
-      throw new Error(errorText);
+
+      return { finished: false, success: null, newErrorRetryCount };
     }
+
+    core.error(`Could not check job status: ${errorText}`);
+    throw new Error(errorText);
   }
+
   const data = await response.json();
 
-  if (data.code !== 0) {
-    core.error(`Error from API: ${data.description}`);
-    throw new Error(`Error from API: ${data.description}`);
+  const finished = 'time_end' in data.job;
+  let success = false;
+
+  if (finished) {
+    core.info(`Job finished execution`);
+
+    if (data.code !== 0) {
+      core.error(`Job finished without success code: ${data.description}`);
+      throw new Error(`Job finished withoud success code: ${data.description}`);
+    } else {
+      success = true;
+    }
   }
 
-  const finished = 'time_end' in data.job;
-
-  return { finished, success: data.job.code === 0, newErrorRetryCount };
+  return { finished, success, newErrorRetryCount };
 }
 
 async function getJobLog(hostname, taskId) {

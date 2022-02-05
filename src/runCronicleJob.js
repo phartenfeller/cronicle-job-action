@@ -46,7 +46,6 @@ async function runCronicleJob({
     jobDone = finished;
     jobSuccess = success;
   }
-  core.info(`Job finished execution`);
 
   const log = await getJobLog(cronicleHost, taskId);
 
