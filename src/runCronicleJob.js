@@ -15,6 +15,7 @@ async function runCronicleJob({
   let jobDone = false;
   let retryCount = 0;
   let jobSuccess = false;
+  let errorRetryCount = 0;
 
   const taskId = await startEvent({
     cronicleHost,
@@ -25,6 +26,8 @@ async function runCronicleJob({
   core.info(`Job started`);
   core.debug(`Task ID returned from API "${taskId}"`);
 
+  await pause(2);
+
   while (!jobDone && retryCount <= maxFetchRetries) {
     retryCount += 1;
     core.debug(`Check job done #${retryCount}`);
@@ -32,11 +35,14 @@ async function runCronicleJob({
     await pause(fetchInterval);
 
     // eslint-disable-next-line no-await-in-loop
-    const { finished, success } = await checkJobStatus(
+    const { finished, success, newErrorRetryCount } = await checkJobStatus(
       cronicleHost,
       taskId,
-      apiKey
+      apiKey,
+      errorRetryCount
     );
+
+    errorRetryCount = newErrorRetryCount;
     jobDone = finished;
     jobSuccess = success;
   }

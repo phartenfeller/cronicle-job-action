@@ -68,7 +68,9 @@ async function startEvent({
   return data.ids[0];
 }
 
-async function checkJobStatus(hostname, taskId, apiKey) {
+async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
+  let newErrorRetryCount = errorRetryCount;
+
   const payload = {
     id: taskId,
     api_key: apiKey,
@@ -88,8 +90,17 @@ async function checkJobStatus(hostname, taskId, apiKey) {
     checkStatus(response);
   } catch (error) {
     const errorBody = await error.response.text();
-    core.error(`Could not check job status: ${errorBody}`);
-    throw new Error(errorBody);
+    const errorText = blankLog(errorBody);
+
+    if (errorRetryCount < 5) {
+      newErrorRetryCount += 1;
+      core.info(
+        `API returned error: ${errorText}. Retrying #${newErrorRetryCount} ...`
+      );
+    } else {
+      core.error(`Could not check job status: ${errorText}`);
+      throw new Error(errorText);
+    }
   }
   const data = await response.json();
 
@@ -100,7 +111,7 @@ async function checkJobStatus(hostname, taskId, apiKey) {
 
   const finished = 'time_end' in data.job;
 
-  return { finished, success: data.job.code === 0 };
+  return { finished, success: data.job.code === 0, newErrorRetryCount };
 }
 
 async function getJobLog(hostname, taskId) {

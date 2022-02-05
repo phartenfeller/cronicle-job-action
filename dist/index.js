@@ -5513,7 +5513,9 @@ async function startEvent({
   return data.ids[0];
 }
 
-async function checkJobStatus(hostname, taskId, apiKey) {
+async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
+  let newErrorRetryCount = errorRetryCount;
+
   const payload = {
     id: taskId,
     api_key: apiKey,
@@ -5533,8 +5535,17 @@ async function checkJobStatus(hostname, taskId, apiKey) {
     checkStatus(response);
   } catch (error) {
     const errorBody = await error.response.text();
-    core.error(`Could not check job status: ${errorBody}`);
-    throw new Error(errorBody);
+    const errorText = blankLog(errorBody);
+
+    if (errorRetryCount < 5) {
+      newErrorRetryCount += 1;
+      core.info(
+        `API returned error: ${errorText}. Retrying #${newErrorRetryCount} ...`
+      );
+    } else {
+      core.error(`Could not check job status: ${errorText}`);
+      throw new Error(errorText);
+    }
   }
   const data = await response.json();
 
@@ -5545,7 +5556,7 @@ async function checkJobStatus(hostname, taskId, apiKey) {
 
   const finished = 'time_end' in data.job;
 
-  return { finished, success: data.job.code === 0 };
+  return { finished, success: data.job.code === 0, newErrorRetryCount };
 }
 
 async function getJobLog(hostname, taskId) {
@@ -5627,6 +5638,7 @@ async function runCronicleJob({
   let jobDone = false;
   let retryCount = 0;
   let jobSuccess = false;
+  let errorRetryCount = 0;
 
   const taskId = await startEvent({
     cronicleHost,
@@ -5637,6 +5649,8 @@ async function runCronicleJob({
   core.info(`Job started`);
   core.debug(`Task ID returned from API "${taskId}"`);
 
+  await pause(2);
+
   while (!jobDone && retryCount <= maxFetchRetries) {
     retryCount += 1;
     core.debug(`Check job done #${retryCount}`);
@@ -5644,11 +5658,14 @@ async function runCronicleJob({
     await pause(fetchInterval);
 
     // eslint-disable-next-line no-await-in-loop
-    const { finished, success } = await checkJobStatus(
+    const { finished, success, newErrorRetryCount } = await checkJobStatus(
       cronicleHost,
       taskId,
-      apiKey
+      apiKey,
+      errorRetryCount
     );
+
+    errorRetryCount = newErrorRetryCount;
     jobDone = finished;
     jobSuccess = success;
   }
@@ -5815,7 +5832,7 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"cronicle-job-action","version":"1.2.0","description":"JavaScript Action Template","main":"index.js","scripts":{"lint":"eslint .","prepare":"ncc build index.js -o dist --source-map --license licenses.txt","test":"jest","all":"npm run lint && npm run prepare && npm run test"},"repository":{"type":"git","url":"git+https://github.com/phartenfeller/cronicle-job-action.git"},"keywords":["GitHub","Actions","JavaScript"],"author":"","license":"MIT","bugs":{"url":"https://github.com/phartenfeller/cronicle-job-action/issues"},"homepage":"https://github.com/phartenfeller/cronicle-job-action#readme","dependencies":{"@actions/core":"^1.6.0","node-fetch":"^2.6.7"},"devDependencies":{"@vercel/ncc":"^0.33.1","dotenv":"^16.0.0","eslint":"^8.8.0","eslint-config-airbnb-base":"^15.0.0","eslint-config-prettier":"^8.3.0","eslint-plugin-import":"^2.25.4","eslint-plugin-prettier":"^4.0.0","jest":"^27.4.7","prettier":"^2.5.1"}}');
+module.exports = JSON.parse('{"name":"cronicle-job-action","version":"1.2.1","description":"JavaScript Action Template","main":"index.js","scripts":{"lint":"eslint .","prepare":"ncc build index.js -o dist --source-map --license licenses.txt","test":"jest","all":"npm run lint && npm run prepare && npm run test"},"repository":{"type":"git","url":"git+https://github.com/phartenfeller/cronicle-job-action.git"},"keywords":["GitHub","Actions","JavaScript"],"author":"","license":"MIT","bugs":{"url":"https://github.com/phartenfeller/cronicle-job-action/issues"},"homepage":"https://github.com/phartenfeller/cronicle-job-action#readme","dependencies":{"@actions/core":"^1.6.0","node-fetch":"^2.6.7"},"devDependencies":{"@vercel/ncc":"^0.33.1","dotenv":"^16.0.0","eslint":"^8.8.0","eslint-config-airbnb-base":"^15.0.0","eslint-config-prettier":"^8.3.0","eslint-plugin-import":"^2.25.4","eslint-plugin-prettier":"^4.0.0","jest":"^27.4.7","prettier":"^2.5.1"}}');
 
 /***/ })
 
