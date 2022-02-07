@@ -106,8 +106,12 @@ async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
   }
 
   const data = await response.json();
+  let finished = false;
 
-  const finished = 'time_end' in data.job;
+  if (data && data.job && data.job.time_end) {
+    finished = true;
+  }
+
   let success = false;
 
   if (finished) {
