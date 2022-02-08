@@ -5473,11 +5473,19 @@ const checkStatus = (response) => {
   throw new HTTPResponseError(response);
 };
 
+function formatResponseLog(response, body) {
+  const blanked = blankLog(body);
+  return `\nStatus: ${response.status} - ${
+    response.statusText
+  }\nHeaders: ${JSON.stringify(response.headers)}\nBody: ${blanked}`;
+}
+
 async function startEvent({
   cronicleHost,
   eventId,
   apiKey = null,
   parameters = null,
+  debugLogResponses = false,
 }) {
   const payload = {
     id: eventId,
@@ -5499,10 +5507,23 @@ async function startEvent({
     checkStatus(response);
   } catch (error) {
     const errorBody = await error.response.text();
+
+    if (debugLogResponses) {
+      core.info(
+        `Job start response: ${formatResponseLog(response, errorBody)}`
+      );
+    }
+
     core.error(`Could not start job: ${errorBody}`);
     throw new Error(errorBody);
   }
   const data = await response.json();
+
+  if (debugLogResponses) {
+    core.info(
+      `Job start response: ${formatResponseLog(response, JSON.stringify(data))}`
+    );
+  }
 
   if (data.code !== 0) {
     core.error(`No success code from start job call: ${data.description}`);
@@ -5513,7 +5534,13 @@ async function startEvent({
   return data.ids[0];
 }
 
-async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
+async function checkJobStatus(
+  hostname,
+  taskId,
+  apiKey,
+  errorRetryCount,
+  debugLogResponses = false
+) {
   let newErrorRetryCount = errorRetryCount;
 
   const payload = {
@@ -5537,6 +5564,12 @@ async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
     const errorBody = await error.response.text();
     const errorText = blankLog(errorBody);
 
+    if (debugLogResponses) {
+      core.info(
+        `Job status request response: ${formatResponseLog(response, errorText)}`
+      );
+    }
+
     if (errorRetryCount < 5) {
       newErrorRetryCount += 1;
       core.info(
@@ -5551,6 +5584,16 @@ async function checkJobStatus(hostname, taskId, apiKey, errorRetryCount) {
   }
 
   const data = await response.json();
+
+  if (debugLogResponses) {
+    core.info(
+      `Job status request response: ${formatResponseLog(
+        response,
+        JSON.stringify(data)
+      )}`
+    );
+  }
+
   let finished = false;
 
   if (data && data.job && data.job.time_end) {
@@ -5648,6 +5691,7 @@ async function runCronicleJob({
   failRegex,
   outputLog = true,
   parameters,
+  debugLogResponses = false,
 }) {
   let jobDone = false;
   let retryCount = 0;
@@ -5659,6 +5703,7 @@ async function runCronicleJob({
     eventId,
     apiKey,
     parameters,
+    debugLogResponses,
   });
   core.info(`Job started`);
   core.debug(`Task ID returned from API "${taskId}"`);
@@ -5676,7 +5721,8 @@ async function runCronicleJob({
       cronicleHost,
       taskId,
       apiKey,
-      errorRetryCount
+      errorRetryCount,
+      debugLogResponses
     );
 
     errorRetryCount = newErrorRetryCount;
@@ -5923,6 +5969,11 @@ async function run() {
       }
     }
 
+    const debugLogResponses = core.getInput('debug_log_responses');
+    if (debugLogResponses) {
+      core.info(`Debug: Logging all server responses`);
+    }
+
     await runCronicleJob({
       cronicleHost,
       eventId,
@@ -5932,6 +5983,7 @@ async function run() {
       failRegex,
       outputLog,
       parameters,
+      debugLogResponses,
     });
   } catch (error) {
     core.setFailed(error.message);

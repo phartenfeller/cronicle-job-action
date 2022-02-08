@@ -33,6 +33,10 @@ inputs:
   parameter_object:
     description: 'json object of parameters you can send to cronicle'
     required: false
+  debug_log_responses:
+    description: 'logs the responses from the cronicle server'
+    required: false
+    default: false
 outputs:
   log:
     description: 'output log'

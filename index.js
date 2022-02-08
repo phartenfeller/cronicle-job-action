@@ -31,6 +31,11 @@ async function run() {
       }
     }
 
+    const debugLogResponses = core.getInput('debug_log_responses');
+    if (debugLogResponses) {
+      core.info(`Debug: Logging all server responses`);
+    }
+
     await runCronicleJob({
       cronicleHost,
       eventId,
@@ -40,6 +45,7 @@ async function run() {
       failRegex,
       outputLog,
       parameters,
+      debugLogResponses,
     });
   } catch (error) {
     core.setFailed(error.message);

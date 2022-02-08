@@ -41,5 +41,6 @@ Parameter Description
 | fail_on_regex_match   | Regex for the job log. On match the action will be marked as failed    | Status Code: 1                       |          |
 | output_log            | Spool the cronicle job log into the GitHub action log                  | true                                 |          |
 | parameter_object      | JSON Object with parameters that are used as env variables by cronicle | '{"param1": "one", "param2": "two"}' |          |
+| debug_log_responses   | Do not use! Logs server request responses                              | false                                |          |
 
 See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:

@@ -11,6 +11,7 @@ async function runCronicleJob({
   failRegex,
   outputLog = true,
   parameters,
+  debugLogResponses = false,
 }) {
   let jobDone = false;
   let retryCount = 0;
@@ -22,6 +23,7 @@ async function runCronicleJob({
     eventId,
     apiKey,
     parameters,
+    debugLogResponses,
   });
   core.info(`Job started`);
   core.debug(`Task ID returned from API "${taskId}"`);
@@ -39,7 +41,8 @@ async function runCronicleJob({
       cronicleHost,
       taskId,
       apiKey,
-      errorRetryCount
+      errorRetryCount,
+      debugLogResponses
     );
 
     errorRetryCount = newErrorRetryCount;
